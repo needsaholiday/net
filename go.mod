@@ -1,4 +1,4 @@
-module golang.org/x/net
+module github.com/needsaholiday/net
 
 go 1.17
 
