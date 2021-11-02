@@ -27,6 +27,8 @@ type Handler struct {
 	// Logger is an optional error logger. If non-nil, it will be called
 	// for all HTTP requests.
 	Logger func(*http.Request, error)
+
+	HTTPInterceptor func(http.ResponseWriter, *http.Request) bool
 }
 
 func (h *Handler) stripPrefix(p string) (string, int, error) {
@@ -46,27 +48,34 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else if h.LockSystem == nil {
 		status, err = http.StatusInternalServerError, errNoLockSystem
 	} else {
-		switch r.Method {
-		case "OPTIONS":
-			status, err = h.handleOptions(w, r)
-		case "GET", "HEAD", "POST":
-			status, err = h.handleGetHeadPost(w, r)
-		case "DELETE":
-			status, err = h.handleDelete(w, r)
-		case "PUT":
-			status, err = h.handlePut(w, r)
-		case "MKCOL":
-			status, err = h.handleMkcol(w, r)
-		case "COPY", "MOVE":
-			status, err = h.handleCopyMove(w, r)
-		case "LOCK":
-			status, err = h.handleLock(w, r)
-		case "UNLOCK":
-			status, err = h.handleUnlock(w, r)
-		case "PROPFIND":
-			status, err = h.handlePropfind(w, r)
-		case "PROPPATCH":
-			status, err = h.handleProppatch(w, r)
+		cont := true
+		if h.HTTPInterceptor != nil {
+			cont = h.HTTPInterceptor(w, r)
+		}
+
+		if cont {
+			switch r.Method {
+			case "OPTIONS":
+				status, err = h.handleOptions(w, r)
+			case "GET", "HEAD", "POST":
+				status, err = h.handleGetHeadPost(w, r)
+			case "DELETE":
+				status, err = h.handleDelete(w, r)
+			case "PUT":
+				status, err = h.handlePut(w, r)
+			case "MKCOL":
+				status, err = h.handleMkcol(w, r)
+			case "COPY", "MOVE":
+				status, err = h.handleCopyMove(w, r)
+			case "LOCK":
+				status, err = h.handleLock(w, r)
+			case "UNLOCK":
+				status, err = h.handleUnlock(w, r)
+			case "PROPFIND":
+				status, err = h.handlePropfind(w, r)
+			case "PROPPATCH":
+				status, err = h.handleProppatch(w, r)
+			}
 		}
 	}
 
@@ -215,7 +224,6 @@ func (h *Handler) handleGetHeadPost(w http.ResponseWriter, r *http.Request) (sta
 		return http.StatusInternalServerError, err
 	}
 	w.Header().Set("ETag", etag)
-	w.Header().Set("Content-Type", "application/octet-stream")
 	// Let ServeContent determine the Content-Type header.
 	http.ServeContent(w, r, reqPath, fi.ModTime(), f)
 	return 0, nil
