@@ -202,7 +202,12 @@ func (h *Handler) handleGetHeadPost(w http.ResponseWriter, r *http.Request) (sta
 	if err != nil {
 		return http.StatusNotFound, err
 	}
-	defer f.Close()
+	defer func() {
+		err = f.Close()
+		if err != nil {
+			status = http.StatusMethodNotAllowed
+		}
+	}()
 	fi, err := f.Stat()
 	if err != nil {
 		return http.StatusNotFound, err
