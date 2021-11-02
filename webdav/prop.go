@@ -139,7 +139,7 @@ var liveProps = map[xml.Name]struct {
 		dir:    false,
 	},
 	{Space: "DAV:", Local: "getcontenttype"}: {
-		findFn: findContentType,
+		findFn: findContentType, // TODONICK: nil
 		dir:    false,
 	},
 	{Space: "DAV:", Local: "getetag"}: {

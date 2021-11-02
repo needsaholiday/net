@@ -215,6 +215,7 @@ func (h *Handler) handleGetHeadPost(w http.ResponseWriter, r *http.Request) (sta
 		return http.StatusInternalServerError, err
 	}
 	w.Header().Set("ETag", etag)
+	w.Header().Set("Content-Type", "application/octet-stream")
 	// Let ServeContent determine the Content-Type header.
 	http.ServeContent(w, r, reqPath, fi.ModTime(), f)
 	return 0, nil
