@@ -667,7 +667,11 @@ func parseDepth(s string) int {
 		return 0
 	case "1":
 		return 1
+	case "1,noroot":
+		return 1
 	case "infinity":
+		return infiniteDepth
+	case "infinity,noroot":
 		return infiniteDepth
 	}
 	return invalidDepth
