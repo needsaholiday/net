@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	// As of https://go-review.googlesource.com/#/c/12772/ which was submitted
@@ -516,4 +517,18 @@ func readProppatch(r io.Reader) (patches []Proppatch, status int, err error) {
 		patches = append(patches, Proppatch{Remove: remove, Props: op.Prop})
 	}
 	return patches, 0, nil
+}
+
+// a generic xml to provide an error description
+func writeError(w io.Writer, status int, err error) (int, error) {
+
+	// replace spaces with - and convert to lowercase
+	statusText := strings.Replace(strings.ToLower(StatusText(status)), " ", "-", -1)
+
+	return fmt.Fprintf(w, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"+
+		"<K:error xmlns:K=\"APC-KOE:\">\n"+
+		"<K:%s>\n"+
+		"<K:status>%s</K:status>\n"+
+		"</K:%s>\n"+
+		"</K:error>\n", statusText, err.Error(), statusText)
 }
