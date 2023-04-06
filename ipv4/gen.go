@@ -15,6 +15,7 @@ package main
 import (
 	"bytes"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"go/format"
 	"io"
@@ -42,7 +43,7 @@ func genzsys() error {
 	defs := "defs_" + runtime.GOOS + ".go"
 	f, err := os.Open(defs)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			return nil
 		}
 		return err

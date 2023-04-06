@@ -259,7 +259,7 @@ func (h *Handler) handleDelete(w http.ResponseWriter, r *http.Request) (status i
 	// returns nil (no error)." WebDAV semantics are that it should return a
 	// "404 Not Found". We therefore have to Stat before we RemoveAll.
 	if _, err := h.FileSystem.Stat(ctx, reqPath); err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			return http.StatusNotFound, err
 		}
 		return http.StatusMethodNotAllowed, err
@@ -326,7 +326,7 @@ func (h *Handler) handleMkcol(w http.ResponseWriter, r *http.Request) (status in
 		return http.StatusUnsupportedMediaType, nil
 	}
 	if err := h.FileSystem.Mkdir(ctx, reqPath, 0777); err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			return http.StatusConflict, err
 		}
 		return http.StatusMethodNotAllowed, err
@@ -534,7 +534,7 @@ func (h *Handler) handlePropfind(w http.ResponseWriter, r *http.Request) (status
 	ctx := r.Context()
 	fi, err := h.FileSystem.Stat(ctx, reqPath)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			return http.StatusNotFound, err
 		}
 		return http.StatusMethodNotAllowed, err
@@ -609,7 +609,7 @@ func (h *Handler) handleProppatch(w http.ResponseWriter, r *http.Request) (statu
 	ctx := r.Context()
 
 	if _, err := h.FileSystem.Stat(ctx, reqPath); err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			return http.StatusNotFound, err
 		}
 		return http.StatusMethodNotAllowed, err
