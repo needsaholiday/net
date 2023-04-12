@@ -7,6 +7,7 @@ package webdav
 import (
 	"context"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -263,9 +264,9 @@ func find(ctx context.Context, ss []string, fs FileSystem, name string) ([]strin
 func testFS(t *testing.T, fs FileSystem) {
 	errStr := func(err error) string {
 		switch {
-		case os.IsExist(err):
+		case errors.Is(err, os.ErrExist):
 			return "errExist"
-		case os.IsNotExist(err):
+		case errors.Is(err, os.ErrNotExist):
 			return "errNotExist"
 		case err != nil:
 			return "err"
