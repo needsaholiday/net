@@ -296,11 +296,11 @@ func (h *Handler) handlePut(w http.ResponseWriter, r *http.Request) (status int,
 	if copyErr != nil {
 		return http.StatusMethodNotAllowed, copyErr
 	}
-	if statErr != nil {
-		return http.StatusMethodNotAllowed, statErr
-	}
 	if closeErr != nil {
 		return http.StatusMethodNotAllowed, closeErr
+	}
+	if statErr != nil {
+		return http.StatusMethodNotAllowed, statErr
 	}
 	etag, err := findETag(ctx, h.FileSystem, h.LockSystem, reqPath, fi)
 	if err != nil {
